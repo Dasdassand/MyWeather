@@ -19,13 +19,13 @@ public class Main {
         for (City c :
                 cities) {
             if (Objects.equals(c.getName(), name))
-                getWeatherYandex(c);
+                getYandex(c);
         }
         scanner.close();
 
     }
 
-    private static void getWeatherYandex(City city) throws IOException {
+    private static void getYandex(City city) throws IOException {
         System.out.println(parserYandex(city));
     }
 
@@ -52,6 +52,7 @@ public class Main {
         int count = 0;
         TypeCondition condition = new TypeCondition();
         String[] resp = response.toString().split(",");
+
         for (String lineS :
                 resp) {
             if (lineS.contains("date") && !lineS.contains("date_ts")) {
@@ -64,7 +65,7 @@ public class Main {
             if (lineS.contains("temp_min") && flag)
                 res += "Минимальная температура - " + lineS.split(":")[1] + ("°") + ("\n");
             if (lineS.contains("temp_max") && flag)
-                res += "Максимальная температура - " + lineS.split(":")[1] +("°") + ("\n");
+                res += "Максимальная температура - " + lineS.split(":")[1] + ("°") + ("\n");
             if (lineS.contains("wind_speed") && flag)
                 res += "Скорость ветра - " + lineS.split(":")[1] + (" м/с") + ("\n");
             if (lineS.contains("condition") && flag) {
