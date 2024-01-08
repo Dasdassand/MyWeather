@@ -1,37 +1,40 @@
-package org.example;
+package org.example.server;
 
+import com.google.gson.Gson;
 
+import javax.servlet.ServletException;
+import javax.servlet.annotation.WebServlet;
+import javax.servlet.http.HttpServlet;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
-import java.net.URLConnection;
-import java.util.Objects;
-import java.util.Scanner;
 
-public class Main {
-    public static void main(String[] args) throws IOException {
-        var cities = City.getCities();
-        Scanner scanner = new Scanner(System.in);
-        System.out.println("Введите название города:");
-        String name = scanner.nextLine();
-        for (City c :
-                cities) {
-            if (Objects.equals(c.getName(), name))
-                getYandex(c);
+@WebServlet("/weather")
+public class MyServlet extends HttpServlet {
+    @Override
+    protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+        super.doGet(req, resp);
+        var json = req.getHeader("city");
+        City city = new Gson().fromJson(json, City.class);
+        var res = getYandex(city);
+        resp.setContentType("text/plain");
+        try (var writer = resp.getWriter()) {
+            writer.println(res);
         }
-        scanner.close();
 
     }
 
-    private static void getYandex(City city) throws IOException {
-        System.out.println(parserYandex(city));
+    private String getYandex(City city) throws IOException {
+        return parserYandex(city);
     }
 
-    private static BufferedReader getBufferedReaderYandex(City city) throws IOException {
+    private BufferedReader getBufferedReaderYandex(City city) throws IOException {
         String request = "https://api.weather.yandex.ru/v2/forecast?lat=" + city.getLat() + "&lon=" +
-                city.getLon() + "&lang=Ru-ru&limit=7";
+                city.getLon() + "&lang=Ru-ru&limit=7&hours=false&extra=false";
         URL url = new URL(request);
         HttpURLConnection httpURLConnection = (HttpURLConnection) url.openConnection();
         httpURLConnection.setRequestMethod("GET");
@@ -39,11 +42,11 @@ public class Main {
         return new BufferedReader(new InputStreamReader(httpURLConnection.getInputStream()));
     }
 
-    private static String parserYandex(City city) throws IOException {
+    private String parserYandex(City city) throws IOException {
         BufferedReader reader = getBufferedReaderYandex(city);
         String line;
-        String res = "";
         boolean flag = false;
+        String res = "";
         StringBuilder response = new StringBuilder();
         while ((line = reader.readLine()) != null) {
             response.append(line).append("\n");
@@ -59,9 +62,10 @@ public class Main {
                 res += "Дата - ";
                 res += count == 0 ? lineS.split(":")[2] : lineS.split(":")[1];
                 count = 1;
-                flag = true;
                 res += "\n";
             }
+            if (lineS.contains("\"day\""))
+                flag = true;
             if (lineS.contains("temp_min") && flag)
                 res += "Минимальная температура - " + lineS.split(":")[1] + ("°") + ("\n");
             if (lineS.contains("temp_max") && flag)
@@ -76,28 +80,6 @@ public class Main {
 
         }
         System.out.println(response);
-        return res.toString();
-    }
-
-
-    //@TODO add parser!
-    private static void getWater(int id) throws IOException {
-        var request = "http://api.openweathermap.org/data/2.5/forecast?id=" + id + "&appid=1e7a3d72c547bbada51f45186b16660a";
-        System.out.println(request);
-        URL url = new URL(request);
-        URLConnection connection = url.openConnection();
-        BufferedReader reader = new BufferedReader(new InputStreamReader(connection.getInputStream()));
-        String line;
-        StringBuilder response = new StringBuilder();
-        while ((line = reader.readLine()) != null) {
-            response.append(line);
-        }
-        reader.close();
-        System.out.println(parse(response.toString()));
-    }
-
-    private static String parse(String s) {
-        System.out.println(s);
-        return "";
+        return res;
     }
 }
