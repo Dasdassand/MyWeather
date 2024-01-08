@@ -13,25 +13,38 @@ import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
 
+/**
+ * @author Dasdassand
+ */
 @WebServlet("/weather")
 public class MyServlet extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        super.doGet(req, resp);
         var json = req.getHeader("city");
         City city = new Gson().fromJson(json, City.class);
         var res = getYandex(city);
         resp.setContentType("text/plain");
+        resp.setCharacterEncoding("UTF-8");
         try (var writer = resp.getWriter()) {
             writer.println(res);
         }
 
     }
 
+    /**
+     * @param city - город
+     * @return res - строка с описанием погоды на неделю
+     * @throws IOException
+     */
     private String getYandex(City city) throws IOException {
         return parserYandex(city);
     }
 
+    /**
+     * @param city - город
+     * @return reader - ответ с api yandex в формате json
+     * @throws IOException
+     */
     private BufferedReader getBufferedReaderYandex(City city) throws IOException {
         String request = "https://api.weather.yandex.ru/v2/forecast?lat=" + city.getLat() + "&lon=" +
                 city.getLon() + "&lang=Ru-ru&limit=7&hours=false&extra=false";
@@ -42,6 +55,11 @@ public class MyServlet extends HttpServlet {
         return new BufferedReader(new InputStreamReader(httpURLConnection.getInputStream()));
     }
 
+    /**
+     * @param city - Город
+     * @return res - выдержка из json с основной информацией неедльной температурой
+     * @throws IOException
+     */
     private String parserYandex(City city) throws IOException {
         BufferedReader reader = getBufferedReaderYandex(city);
         String line;

@@ -2,6 +2,9 @@ package org.example.server;
 
 import java.util.HashMap;
 
+/**
+ * @author Dasdassand
+ */
 public class TypeCondition {
     private final HashMap<String, String> conditions = new HashMap<>();
 

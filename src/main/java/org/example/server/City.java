@@ -1,5 +1,8 @@
 package org.example.server;
 
+/**
+ * @author Dasdassand
+ */
 public class City {
     private final String name;
     private final int id;
