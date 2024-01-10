@@ -3,20 +3,18 @@ package org.example.client;
 
 import com.google.gson.Gson;
 import org.example.server.City;
-
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
-import java.util.Objects;
 import java.util.Scanner;
 
 /**
  * @author Dasdassand
  */
 public class Main {
-    public static void main(String[] args) throws IOException {
+    public static void main(String[] args) throws IOException{
         var cities = City.getCities();
         Scanner scanner = new Scanner(System.in);
         System.out.println("Возможный список городов:");
@@ -28,7 +26,7 @@ public class Main {
         String name = scanner.nextLine();
         for (City c :
                 cities) {
-            if (Objects.equals(c.getName(), name))
+            if (c.getName().equals(name))
                 System.out.println(send(c));
         }
         scanner.close();
@@ -36,7 +34,7 @@ public class Main {
     }
 
     private static StringBuilder send(City city) throws IOException {
-        var request = "http://localhost:8090/weather";
+        var request = "http://localhost:8080/weather";
         URL url = new URL(request);
         Gson gson = new Gson();
         String json = gson.toJson(city);

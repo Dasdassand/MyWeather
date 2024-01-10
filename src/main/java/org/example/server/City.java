@@ -1,13 +1,22 @@
 package org.example.server;
 
+import com.google.gson.annotations.SerializedName;
+
 /**
  * @author Dasdassand
  */
 public class City {
-    private final String name;
-    private final int id;
+    @SerializedName("name")
+    private String name;
+    @SerializedName("id")
+    private int id;
+    @SerializedName("lat")
     private String lat;
+    @SerializedName("lon")
     private String lon;
+
+    public City() {
+    }
 
     public City(String name, int id) {
         this.name = name;
@@ -28,6 +37,10 @@ public class City {
 
     public void setLon(String lon) {
         this.lon = lon;
+    }
+
+    public void setName(String name) {
+        this.name = name;
     }
 
     public String getLat() {
