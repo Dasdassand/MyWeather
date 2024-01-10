@@ -3,18 +3,21 @@ package org.example.client;
 
 import com.google.gson.Gson;
 import org.example.server.City;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.Scanner;
 
 /**
  * @author Dasdassand
  */
 public class Main {
-    public static void main(String[] args) throws IOException{
+    public static void main(String[] args) throws IOException {
         var cities = City.getCities();
         Scanner scanner = new Scanner(System.in);
         System.out.println("Возможный список городов:");
@@ -24,16 +27,20 @@ public class Main {
         }
         System.out.println("Введите название города:");
         String name = scanner.nextLine();
+        LocalDate date = LocalDate.now();
+        String dateS = date.format(DateTimeFormatter.ofPattern("yyyy-MM-dd"));
+
         for (City c :
                 cities) {
-            if (c.getName().equals(name))
-                System.out.println(send(c));
+            if (c.getName().equals(name)) {
+             //   System.out.println(getWeather(c));
+                System.out.println(getAnalysis(c.getId(), dateS));
+            }
         }
         scanner.close();
-
     }
 
-    private static StringBuilder send(City city) throws IOException {
+    private static StringBuilder getWeather(City city) throws IOException {
         var request = "http://localhost:8080/weather";
         URL url = new URL(request);
         Gson gson = new Gson();
@@ -41,6 +48,20 @@ public class Main {
         HttpURLConnection httpURLConnection = (HttpURLConnection) url.openConnection();
         httpURLConnection.setRequestMethod("GET");
         httpURLConnection.setRequestProperty("city", json);
+        return getStringBuilderFromResponse(httpURLConnection);
+    }
+
+    private static StringBuilder getAnalysis(int id, String date) throws IOException {
+        var request = "http://localhost:8080/analysis";
+        URL url = new URL(request);
+        HttpURLConnection httpURLConnection = (HttpURLConnection) url.openConnection();
+        httpURLConnection.setRequestMethod("GET");
+        httpURLConnection.setRequestProperty("city_id", String.valueOf(id));
+        httpURLConnection.setRequestProperty("date", date);
+        return getStringBuilderFromResponse(httpURLConnection);
+    }
+
+    private static StringBuilder getStringBuilderFromResponse(HttpURLConnection httpURLConnection) throws IOException {
         var buf = new BufferedReader(new InputStreamReader(httpURLConnection.getInputStream()));
         String line;
         StringBuilder response = new StringBuilder();

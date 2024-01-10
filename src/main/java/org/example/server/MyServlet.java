@@ -36,7 +36,6 @@ public class MyServlet extends HttpServlet {
         var res = getYandex(city);
         resp.setContentType("text/plain");
         resp.setCharacterEncoding("UTF-8");
-
         try (var writer = resp.getWriter()) {
             writer.println(res);
         }
@@ -139,4 +138,5 @@ public class MyServlet extends HttpServlet {
             throw new RuntimeException();
         }
     }
+
 }
